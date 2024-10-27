@@ -143,6 +143,7 @@ def extract_python_script(response: str):
         python_script = response.split("```python")[1].split("```")[0] if '```python' in response else response.split('```')[1].split('```')[0]
     else:
         print("Fail to extract python code from specific format.")
+        # print(response + "\n")
         python_script = response
     python_script = re.sub(r'^\s*(import .*|from .*\s+import\s+.*)', '', python_script, flags=re.MULTILINE)
     return python_script
