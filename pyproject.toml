@@ -15,7 +15,7 @@ name = "scicode"
 dynamic = ["version",]
 description = "todo"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {file = "LICENSE"}
 keywords = ["nlp", "code"]
 authors = [
@@ -37,6 +37,7 @@ dependencies = [
     "scipy",
     "matplotlib",
     "sympy",
+    "inspect-ai",
 ]
 
 # Classifiers help users find your project by categorizing it.
@@ -119,7 +120,7 @@ target-version = "py38"
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
 # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
 # McCabe complexity (`C901`) by default.
-select = ["F821", "F822", "E999", "E902", "F401", "F841"]
+select = ["F821", "F822", "E902", "F401", "F841"]
 ignore = []
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
