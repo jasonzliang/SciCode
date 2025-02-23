@@ -5,7 +5,7 @@ import subprocess
 from typing import Any
 from pathlib import Path
 from inspect_ai import Task, task
-from inspect_ai.dataset import json_dataset, Sample
+from inspect_ai.dataset import Sample, hf_dataset
 from inspect_ai.solver import solver, TaskState, Generate
 from inspect_ai.scorer import scorer, mean, metric, Metric, Score, Target
 from scicode.parse.parse import extract_function_name, get_function_from_code
@@ -336,12 +336,16 @@ def scicode_solver(**params: dict[str, Any]):
             elif params["mode"] == "gold":
                 response_from_llm = generate_gold_response(state.metadata, idx+1)
             else:
-                # ===Model Generation===
-                state.user_prompt.text = prompt
-                state_copy = copy.deepcopy(state)
-                result = await generate(state=state_copy)
-                response_from_llm = result.output.completion
-                # ===Model Generation===
+                try:
+                    # ===Model Generation===
+                    state.user_prompt.text = prompt
+                    state_copy = copy.deepcopy(state)
+                    result = await generate(state=state_copy)
+                    response_from_llm = result.output.completion
+                    # ===Model Generation===
+                except:
+                    print(f"Failed to generate response for problem {prob_id} step {idx+1}.")
+                    response_from_llm = generate_dummy_response(prompt)
             prompt_assistant.register_previous_response(
                 prob_data=state.metadata,
                 response=response_from_llm,
@@ -388,26 +392,26 @@ def scicode_scorer(**params: dict[str, Any]):
 
 @task
 def scicode(
-    input_path: str = '../data/problems_all.jsonl',
+    split: str = 'test',
     output_dir: str = './tmp',
     with_background: bool = False,
     h5py_file: str = '../data/test_data.h5',
     mode: str = 'normal',
 ):
-    dataset = json_dataset(
-        input_path, 
-        record_to_sample
+    
+    dataset =  hf_dataset(
+        'SciCode1/SciCode',
+        split=split,
+        sample_fields=record_to_sample,
     )
     return Task(
         dataset=dataset,
         solver=scicode_solver(
-            input_path=input_path,
             output_dir=output_dir,
             with_background=with_background,
             mode=mode,
         ),
         scorer=scicode_scorer(
-            input_path=input_path,
             output_dir=output_dir,
             with_background=with_background,
             h5py_file=h5py_file,
